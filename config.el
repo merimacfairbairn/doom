@@ -161,3 +161,10 @@
 (setq org-alert-interval 300
       org-alert-notify-cutoff 10
       org-alert-notify-after-event-cutoff 10)
+
+;; Add s and S back
+(remove-hook 'doom-first-input-hook #'evil-snipe-mode)
+
+(map! :map evil-normal-state-map
+      "s" #'evil-substitute
+      "S" #'evil-change-whole-line)
