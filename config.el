@@ -78,6 +78,7 @@
 
 ;; START OF MY CONFIG
 
+;; Map C-c to ESC in insert and visual
 (after! evil
   ;; Fix ESC delay in terminals
   (setq evil-escape-delay 0.1)
@@ -85,3 +86,75 @@
   ;; C-c as ESC replacement
   (map! :map evil-insert-state-map "C-c" #'evil-normal-state
         :map evil-visual-state-map "C-c" #'evil-normal-state))
+
+;; Different Heading sizes
+(setq org-fontify-whole-heading-line t)  ; Enable if not already set
+
+;; Set different font sizes for headings
+(custom-set-faces!
+  '(org-level-1 :height 1.4 :weight bold :inherit outline-1)
+  '(org-level-2 :height 1.3 :weight bold :inherit outline-2)
+  '(org-level-3 :height 1.2 :weight bold :inherit outline-3)
+  '(org-level-4 :height 1.1 :weight bold :inherit outline-4))
+
+;; Hide emphasis markers
+(use-package org-appear
+  :commands (org-appear-mode)
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-hide-emphasis-markers t)
+  (setq org-appear-autoemphasis t
+        org-appear-autolinks    t
+        org-appear-autosubmarkers t))
+
+(setq org-log-done                           t
+      org-auto-align-tags                t
+      org-tags-column                    -80
+      org-fold-catch-invisible-edits     'show-and-error
+      org-special-ctrl-a/e               t
+      org-insert-heading-respect-content t)
+
+;; wrap for orgmode
+(add-hook 'org-mode-hook 'visual-line-mode)
+
+;; org-roam setup
+(use-package! org-roam
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory "~/org/roam/")
+  (org-roam-completion-everywhere t)
+  (org-roam-capture-templates
+   '(("d" "default" plain
+      "%?"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                         "#+title: ${title}\n#+date: %U\n")
+      :unnarrowed t)))
+  :config
+  (org-roam-db-autosync-enable))
+
+(setq org-roam-dailies-directory "daily/")
+(setq org-roam-dailies-capture-templates
+      '(("d" "default" entry
+         "* %<%I:%M %p>: %?"
+         :if-new (file+head "%<%Y-%m-%d>.org"
+                            "#+title: %<%Y-%m-%d>\n"))))
+
+(use-package org-superstar
+  :config
+  (setq org-superstar-leading-bullet " ")
+  (setq org-superstar-special-todo-items t) ;; Makes TODO header bullets into boxes
+  (setq org-superstar-todo-bullet-alist '(("TODO"  . 9744)
+					  ("DONE"  . 9745)))
+  :hook (org-mode . org-superstar-mode))
+
+(after! evil-collection
+  (evil-collection-init '(calendar)))
+
+;; Enable org-mode allerts
+(use-package org-alert
+  :ensure t)
+
+(setq org-alert-interval 300
+      org-alert-notify-cutoff 10
+      org-alert-notify-after-event-cutoff 10)

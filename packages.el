@@ -47,3 +47,7 @@
 ;; (unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;; (unpin! t)
+
+(package! org-appear)
+(package! org-superstar)
+(package! org-alert)
