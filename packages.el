@@ -51,3 +51,5 @@
 (package! org-appear)
 (package! org-superstar)
 (package! org-alert)
+
+(package! mixed-pitch)

@@ -34,7 +34,8 @@
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-gruvbox)
 
-(setq doom-font (font-spec :family "FiraCode Nerd Font" :size 14))
+(setq doom-font (font-spec :family "FiraCode Nerd Font" :size 14)
+      doom-variable-pitch-font (font-spec :family "Open Sans" :size 16))
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -168,3 +169,20 @@
 (map! :map evil-normal-state-map
       "s" #'evil-substitute
       "S" #'evil-change-whole-line)
+
+;; Set different pitches for orgmode
+(use-package! mixed-pitch
+  :hook (org-mode . mixed-pitch-mode)
+  :config
+  ;; Ensure certain faces remain fixed-pitch
+  (setq mixed-pitch-fixed-pitch-faces
+        '(org-code
+          org-block
+          org-table
+          org-verbatim
+          org-meta-line
+          org-checkbox
+          line-number
+          line-number-current-line))
+  ;; Optionally adjust the height of variable-pitch text
+  (setq mixed-pitch-set-height t))
