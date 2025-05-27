@@ -207,3 +207,11 @@
 (map! :map dired-mode-map
       :n "%" #'dired-create-empty-file)
 
+(use-package! tree-sitter
+  :hook (prog-mode . turn-on-tree-sitter-mode)
+  :hook (tree-sitter-after-on . tree-sitter-hl-mode)
+  :config
+  (require 'tree-sitter-langs)
+  (global-tree-sitter-mode)
+  (setq tree-sitter-debug-jump-buttons t
+        tree-sitter-debug-highlight-jump-region t))
