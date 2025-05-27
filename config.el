@@ -204,3 +204,6 @@
                  (file+headline "~/org/todo.org" "Inbox")
                  "* TODO %?\n")))
 
+(map! :map dired-mode-map
+      :n "%" #'dired-create-empty-file)
+
