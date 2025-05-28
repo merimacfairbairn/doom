@@ -176,11 +176,12 @@
 
 ;; Enable org-mode allerts
 (use-package org-alert
-  :ensure t)
-
-(setq org-alert-interval 300
-      org-alert-notify-cutoff 10
-      org-alert-notify-after-event-cutoff 10)
+  :after org
+  :config
+  (setq alert-default-style 'libnotify
+        org-alert-interval 300
+        org-alert-notify-cutoff 10)
+  (org-alert-enable))
 
 ;; Add s and S back
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
