@@ -210,14 +210,12 @@
   (setq org-capture-templates
         (cl-remove-if (lambda (template)
                         (string= (car template) "t"))
-                      org-capture-templates)))
+                      org-capture-templates))
 
-(add-to-list 'org-capture-templates
-             '("m" "Meeting Notes" entry
-               (file+headline "~/org/meetings.org" "Meetings")
-               "* MEETING with %^{Person} :MEETING:\n%?"))
-
-(after! org
+  (add-to-list 'org-capture-templates
+               '("m" "Meeting Notes" entry
+                 (file+headline "~/org/meetings.org" "Meetings")
+                 "* MEETING with %^{Person} :MEETING:\n%?"))
   (add-to-list 'org-capture-templates
                '("t" "Personal Todo" entry
                  (file+headline "~/org/todo.org" "Inbox")
