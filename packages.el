@@ -53,3 +53,10 @@
 (package! org-alert)
 
 (package! mixed-pitch)
+
+;; Great org-roam ui
+(unpin! org-roam)
+(package! org-roam-ui)
+(package! websocket)
+(package! simple-httpd)
+(package! f)
