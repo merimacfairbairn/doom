@@ -219,7 +219,8 @@
   (add-to-list 'org-capture-templates
                '("t" "Personal Todo" entry
                  (file+headline "~/org/todo.org" "Inbox")
-                 "* TODO %?\n")))
+                 "* TODO %?\n"))
+  (setq org-ellipsis " ▼ "))
 
 (map! :map dired-mode-map
       :n "%" #'dired-create-empty-file)
