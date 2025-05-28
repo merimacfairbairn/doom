@@ -121,6 +121,10 @@
 ;; wrap for orgmode
 (add-hook 'org-mode-hook 'visual-line-mode)
 
+;; Org Agenda config
+(setq org-agenda-span 7)
+(setq org-agenda-start-on-weekday 1)
+
 ;; org-roam setup
 (use-package! org-roam
   :init
