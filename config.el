@@ -127,10 +127,11 @@
 
 ;; org-roam setup
 (use-package! org-roam
+  :after org
   :init
   (setq org-roam-v2-ack t)
   :custom
-  (org-roam-directory "~/org/roam/")
+  (org-roam-directory (file-truename "~/org/roam/"))
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
    '(("d" "default" plain
