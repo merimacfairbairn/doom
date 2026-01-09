@@ -234,3 +234,9 @@
   (global-tree-sitter-mode)
   (setq tree-sitter-debug-jump-buttons t
         tree-sitter-debug-highlight-jump-region t))
+
+(after! orderless
+  (setq orderless-matching-styles '(orderless-literal
+                                    orderless-flex
+                                    orderless-regexp
+                                    orderless-initialism)))
