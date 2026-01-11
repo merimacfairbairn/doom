@@ -49,6 +49,17 @@
 
  * Capture templates
 #+begin_src emacs-lisp
+(defun my/org-capture-student-location ()
+  "Return (buffer . point) for capture in selected student file."
+  (let ((file (expand-file-name
+               (completing-read "Student: "
+                                (directory-files "~/org/sessions" nil "\\.org$"))
+               "~/org/sessions")))
+    ;; Open the file if not already, go to end, return (buffer . point)
+    (with-current-buffer (find-file-noselect file)
+      (goto-char (point-max))
+      (cons (current-buffer) (point)))))
+
 (after! org
   (setq org-capture-templates
         (cl-remove-if (lambda (template)
@@ -61,19 +72,38 @@
                  "* MEETING with %^{Person} :MEETING:\n%?"))
 
   (add-to-list 'org-capture-templates
-               '("s" "Student Session" entry
-                 ;; Prompt for student folder, create file with date
-                 (file+head
-                  "~/org/sessions/%^{Student}/%<%Y-%m-%d>.org"
-                  "#+TITLE: Session Notes - %^{Student} - %<%Y-%m-%d>\n#+DATE: %<%Y-%m-%d>\n\n")
-                 "* Warm-up\n- Notes:\n\n* Technique Drills\n- Drill 1:\n  Notes:\n- Drill 2:\n  Notes:\n\n* Sparring / Application\n- Notes:\n\n* Feedback\n- Strengths:\n- Areas to improve:\n- Homework / drills for next session:\n\n* Misc Notes\n"))
-
-  (add-to-list 'org-capture-templates
                '("t" "Personal Todo" entry
                  (file+headline "~/org/todo.org" "Inbox")
                  "* TODO %?\n"))
 
+(add-to-list 'org-capture-templates
+  '("s" "Session note"
+    entry
+    (file+headline "~/org/sessions/inbox.org" "Sessions")
+    "* %^{Session Date}t %^g\n\n** Things to work on\n\n - %^{Anything to work on}\n   + %?\n\n** Warm up\n - %^{Warm up}\n\n** Combinations\n - %^{Combos}\n\n** - Drills\n %^{Drills}\n\n** Other\n - %^{Other}\n"
+    :prepend t))
+
+    (setq org-refile-use-outline-path 'file)
+    (setq org-outline-path-complete-in-steps nil)
+
   (setq org-ellipsis " ▼ "))
+#+end_src
+
+ * Add sessions to agenda and refile
+#+begin_src emacs-lisp
+(after! org
+  (add-to-list 'org-agenda-files (expand-file-name "~/org/sessions/") t)
+  (setq org-agenda-files
+        (append org-agenda-files
+                (directory-files-recursively "~/org/sessions/" "\\.org$")))
+
+  ;; refile targets can include those files
+  (setq org-refile-targets
+        '((org-agenda-files :maxlevel . 3)))
+
+  ;; nicer path completion
+  (setq org-outline-path-complete-in-steps nil
+        org-refile-use-outline-path 'file))
 #+end_src
 
  * Notifier for org mode
