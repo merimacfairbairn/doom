@@ -27,16 +27,12 @@
 (setq org-agenda-span 7)
 (setq org-agenda-start-on-weekday 1)
 
-(defun my/org-capture-student-location ()
-  "Return (buffer . point) for capture in selected student file."
-  (let ((file (expand-file-name
-               (completing-read "Student: "
-                                (directory-files "~/org/sessions" nil "\\.org$"))
-               "~/org/sessions")))
-    ;; Open the file if not already, go to end, return (buffer . point)
-    (with-current-buffer (find-file-noselect file)
-      (goto-char (point-max))
-      (cons (current-buffer) (point)))))
+(setq org-log-done                       t
+      org-auto-align-tags                t
+      org-tags-column                    -80
+      org-fold-catch-invisible-edits     'show-and-error
+      org-special-ctrl-a/e               t
+      org-insert-heading-respect-content t)
 
 (after! org
   (setq org-capture-templates
@@ -54,23 +50,26 @@
                  (file+headline "~/org/todo.org" "Inbox")
                  "* TODO %?\n"))
 
-(add-to-list 'org-capture-templates
-  '("s" "Session note"
-    entry
-    (file+headline "~/org/sessions/inbox.org" "Sessions")
-    "* %^{Session Date}t %^g\n\n** Things to work on\n\n - %^{Anything to work on}\n   + %?\n\n** Warm up\n - %^{Warm up}\n\n** Combinations\n - %^{Combos}\n\n** - Drills\n %^{Drills}\n\n** Other\n - %^{Other}\n"
-    :prepend t))
+  (add-to-list 'org-capture-templates
+               '("s" "Session note"
+                 entry
+                 (file+headline "~/org/sessions/inbox.org" "Sessions")
+                 (file "~/org/templates/session.org")
+                 :prepend t))
 
-    (setq org-refile-use-outline-path 'file)
-    (setq org-outline-path-complete-in-steps nil)
+  (setq org-refile-use-outline-path 'file)
+  (setq org-outline-path-complete-in-steps nil)
 
-  (setq org-ellipsis " ▼ "))
+  (setq org-ellipsis " ▼"))
 
 (after! org
   (add-to-list 'org-agenda-files (expand-file-name "~/org/sessions/") t)
-  (setq org-agenda-files
-        (append org-agenda-files
-                (directory-files-recursively "~/org/sessions/" "\\.org$")))
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t)"
+           "DOING(d)"
+           "|"
+           "DONE(D)")))
 
   ;; refile targets can include those files
   (setq org-refile-targets
@@ -111,10 +110,15 @@
   ;; Optionally adjust the height of variable-pitch text
   (setq mixed-pitch-set-height t))
 
-;; wrap for orgmode
-(add-hook 'org-mode-hook 'visual-line-mode)
+(defun my/org-mode-visual-fill ()
+  (setq visual-fill-column-width 120
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
 
-;; Hide emphasis markers
+(use-package! visual-fill-mode
+  :defer t
+  :hook (org-mode . my/org-mode-visual-fill))
+
 (use-package org-appear
   :commands (org-appear-mode)
   :hook (org-mode . org-appear-mode)
@@ -124,25 +128,18 @@
         org-appear-autolinks    t
         org-appear-autosubmarkers t))
 
-(setq org-log-done                       t
-      org-auto-align-tags                t
-      org-tags-column                    -80
-      org-fold-catch-invisible-edits     'show-and-error
-      org-special-ctrl-a/e               t
-      org-insert-heading-respect-content t)
-
 (use-package org-superstar
   :config
   (setq org-superstar-leading-bullet " ")
+  (setq org-superstar-headline-bullets-list
+        '("◉" "○" "◉" "○" "◉" "○"))
   (setq org-superstar-special-todo-items t) ;; Makes TODO header bullets into boxes
   (setq org-superstar-todo-bullet-alist '(("TODO"  . 9744)
 					  ("DONE"  . 9745)))
   :hook (org-mode . org-superstar-mode))
 
-;; Use hunspell for spell checking
 (setq ispell-program-name "/usr/bin/hunspell") ;; force hunspell binary
 
-;; Set default dictionary to British English
 (setq ispell-dictionary "en_GB")
 
 (setq ispell-hunspell-dictionary-alist

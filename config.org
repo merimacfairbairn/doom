@@ -1,9 +1,13 @@
 #+title: Config
+#+STARTUP: overview
 
 * Table of Contents :toc:
 - [[#doom-core][Doom core]]
 - [[#interface][Interface]]
 - [[#org][Org]]
+  - [[#capture-templates][Capture templates]]
+  - [[#add-sessions-to-agenda-and-refile][Add sessions to agenda and refile]]
+  - [[#notifier-for-org-mode][Notifier for org mode]]
   - [[#ui][UI]]
   - [[#spell][Spell]]
 - [[#org-roam][Org roam]]
@@ -46,21 +50,17 @@
 ;; Agenda calendar
 (setq org-agenda-span 7)
 (setq org-agenda-start-on-weekday 1)
+
+(setq org-log-done                       t
+      org-auto-align-tags                t
+      org-tags-column                    -80
+      org-fold-catch-invisible-edits     'show-and-error
+      org-special-ctrl-a/e               t
+      org-insert-heading-respect-content t)
 #+end_src
 
- * Capture templates
+** Capture templates
 #+begin_src emacs-lisp
-(defun my/org-capture-student-location ()
-  "Return (buffer . point) for capture in selected student file."
-  (let ((file (expand-file-name
-               (completing-read "Student: "
-                                (directory-files "~/org/sessions" nil "\\.org$"))
-               "~/org/sessions")))
-    ;; Open the file if not already, go to end, return (buffer . point)
-    (with-current-buffer (find-file-noselect file)
-      (goto-char (point-max))
-      (cons (current-buffer) (point)))))
-
 (after! org
   (setq org-capture-templates
         (cl-remove-if (lambda (template)
@@ -77,26 +77,29 @@
                  (file+headline "~/org/todo.org" "Inbox")
                  "* TODO %?\n"))
 
-(add-to-list 'org-capture-templates
-  '("s" "Session note"
-    entry
-    (file+headline "~/org/sessions/inbox.org" "Sessions")
-    "* %^{Session Date}t %^g\n\n** Things to work on\n\n - %^{Anything to work on}\n   + %?\n\n** Warm up\n - %^{Warm up}\n\n** Combinations\n - %^{Combos}\n\n** - Drills\n %^{Drills}\n\n** Other\n - %^{Other}\n"
-    :prepend t))
+  (add-to-list 'org-capture-templates
+               '("s" "Session note"
+                 entry
+                 (file+headline "~/org/sessions/inbox.org" "Sessions")
+                 (file "~/org/templates/session.org")
+                 :prepend t))
 
-    (setq org-refile-use-outline-path 'file)
-    (setq org-outline-path-complete-in-steps nil)
+  (setq org-refile-use-outline-path 'file)
+  (setq org-outline-path-complete-in-steps nil)
 
-  (setq org-ellipsis " ▼ "))
+  (setq org-ellipsis " ▼"))
 #+end_src
 
- * Add sessions to agenda and refile
+** Add sessions to agenda and refile
 #+begin_src emacs-lisp
 (after! org
   (add-to-list 'org-agenda-files (expand-file-name "~/org/sessions/") t)
-  (setq org-agenda-files
-        (append org-agenda-files
-                (directory-files-recursively "~/org/sessions/" "\\.org$")))
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t)"
+           "DOING(d)"
+           "|"
+           "DONE(D)")))
 
   ;; refile targets can include those files
   (setq org-refile-targets
@@ -107,7 +110,7 @@
         org-refile-use-outline-path 'file))
 #+end_src
 
- * Notifier for org mode
+** Notifier for org mode
 #+begin_src emacs-lisp
 (use-package org-alert
   :after org
@@ -119,7 +122,7 @@
 #+end_src
 
 ** UI
- * Different heading sizes
+*** Different heading sizes
 #+begin_src emacs-lisp
 (setq org-fontify-whole-heading-line t)
 (custom-set-faces!
@@ -129,7 +132,7 @@
   '(org-level-4 :height 1.1 :weight bold :inherit outline-4))
 #+end_src
 
- * Set different pitches
+*** Different pitches
 #+begin_src emacs-lisp
 (use-package! mixed-pitch
   :hook (org-mode . mixed-pitch-mode)
@@ -148,11 +151,20 @@
   (setq mixed-pitch-set-height t))
 #+end_src
 
+*** Visual fill for better look
 #+begin_src emacs-lisp
-;; wrap for orgmode
-(add-hook 'org-mode-hook 'visual-line-mode)
+(defun my/org-mode-visual-fill ()
+  (setq visual-fill-column-width 120
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
 
-;; Hide emphasis markers
+(use-package! visual-fill-mode
+  :defer t
+  :hook (org-mode . my/org-mode-visual-fill))
+#+end_src
+
+*** Appear
+#+begin_src emacs-lisp
 (use-package org-appear
   :commands (org-appear-mode)
   :hook (org-mode . org-appear-mode)
@@ -161,17 +173,15 @@
   (setq org-appear-autoemphasis t
         org-appear-autolinks    t
         org-appear-autosubmarkers t))
+#+end_src
 
-(setq org-log-done                       t
-      org-auto-align-tags                t
-      org-tags-column                    -80
-      org-fold-catch-invisible-edits     'show-and-error
-      org-special-ctrl-a/e               t
-      org-insert-heading-respect-content t)
-
+*** Superstar
+#+begin_src emacs-lisp
 (use-package org-superstar
   :config
   (setq org-superstar-leading-bullet " ")
+  (setq org-superstar-headline-bullets-list
+        '("◉" "○" "◉" "○" "◉" "○"))
   (setq org-superstar-special-todo-items t) ;; Makes TODO header bullets into boxes
   (setq org-superstar-todo-bullet-alist '(("TODO"  . 9744)
 					  ("DONE"  . 9745)))
@@ -180,10 +190,8 @@
 
 ** Spell
 #+begin_src emacs-lisp
-;; Use hunspell for spell checking
 (setq ispell-program-name "/usr/bin/hunspell") ;; force hunspell binary
 
-;; Set default dictionary to British English
 (setq ispell-dictionary "en_GB")
 
 (setq ispell-hunspell-dictionary-alist

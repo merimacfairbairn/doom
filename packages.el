@@ -51,8 +51,11 @@
 (package! org-appear)
 (package! org-superstar)
 (package! org-alert)
+(package! org-gcal)
 
 (package! mixed-pitch)
+
+(package! visual-fill-column)
 
 ;; Great org-roam ui
 (unpin! org-roam)
