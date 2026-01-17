@@ -139,6 +139,26 @@
 					  ("DONE"  . 9745)))
   :hook (org-mode . org-superstar-mode))
 
+;; Use hunspell for spell checking
+(setq ispell-program-name "/usr/bin/hunspell") ;; force hunspell binary
+
+;; Set default dictionary to British English
+(setq ispell-dictionary "en_GB")
+
+(setq ispell-hunspell-dictionary-alist
+      '(("en_GB" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-d" "en_GB") nil utf-8)
+        ("en_US" "[A-Za-z]" "[^A-Za-z]" "[']" nil ("-d" "en_US") nil utf-8)))
+
+;; Only enable flyspell in normal org files, not capture buffers
+(defun my/org-mode-flyspell-setup ()
+  "Enable flyspell in normal org buffers only."
+  (unless (org-roam-capture-p)
+    (flyspell-mode 1)))
+
+(add-hook 'org-mode-hook #'my/org-mode-flyspell-setup)
+
+(set-file-template! 'org-mode :ignore t)
+
 (use-package! org-roam
   :after org
   :init
@@ -150,7 +170,7 @@
    '(("d" "default" plain
       "%?"
       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                         "#+title: ${title}\n#+date: %U\n")
+                         "#+title: ${title}\n#+created: %U\n")
       :unnarrowed t)))
 
   (setq org-roam-dailies-directory "daily/")
